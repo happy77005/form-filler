@@ -236,6 +236,7 @@ function loadSettings() {
             // Professional
             document.getElementById('qualification').value = data.qualification || '';
             document.getElementById('organization').value = data.organization || '';
+            document.getElementById('startingYear').value = data.startingYear || '';
             document.getElementById('passingYear').value = data.passingYear || '';
 
             // Links
@@ -275,6 +276,7 @@ function collectFormData() {
         pincode: document.getElementById('pincode').value.trim(),
         qualification: document.getElementById('qualification').value.trim(),
         organization: document.getElementById('organization').value.trim(),
+        startingYear: document.getElementById('startingYear').value.trim(),
         passingYear: document.getElementById('passingYear').value.trim(),
         linkedinUrl: document.getElementById('linkedinUrl').value.trim(),
         portfolioUrl: document.getElementById('portfolioUrl').value.trim(),
@@ -392,7 +394,7 @@ function applyImportedData() {
             'firstName', 'middleName', 'lastName', 'dateOfBirth', 'gender', 'nationality',
             'email', 'countryCode', 'phoneNational',
             'houseNo', 'building', 'area', 'landmark', 'city', 'state', 'pincode',
-            'qualification', 'organization', 'passingYear',
+            'qualification', 'organization', 'startingYear', 'passingYear',
             'linkedinUrl', 'portfolioUrl', 'githubUrl'
         ];
 
