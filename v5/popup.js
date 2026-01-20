@@ -1,0 +1,319 @@
+/**
+ * Sequential Form Fill Pro v5 - Popup Script
+ * Handles saving/loading user data and queue management
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadSettings();
+    initializeAutocomplete();
+    updateQueueCount();
+
+    // Auto-calculate age when DOB changes
+    document.getElementById('dateOfBirth').addEventListener('change', calculateAge);
+
+    // Handle form submission
+    document.getElementById('settingsForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        saveSettings();
+    });
+
+    // Handle clear button
+    document.getElementById('clearBtn').addEventListener('click', clearSettings);
+
+    // Handle reset queue button
+    document.getElementById('resetQueue').addEventListener('click', resetQueue);
+
+    // Auto-persist on input change
+    setupAutoPersist();
+
+    // Set default country code
+    setDefaultCountryCode();
+});
+
+// Set default +91 country code
+function setDefaultCountryCode() {
+    const countryCodeInput = document.getElementById('countryCode');
+    if (!countryCodeInput.value) {
+        countryCodeInput.value = '+91';
+    }
+}
+
+// Auto-persist on input change
+function setupAutoPersist() {
+    const form = document.getElementById('settingsForm');
+    const inputs = form.querySelectorAll('input, select');
+
+    inputs.forEach(input => {
+        let timeout;
+        input.addEventListener('input', () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                autoSaveSettings();
+                updateQueueCount();
+            }, 500);
+        });
+
+        input.addEventListener('change', () => {
+            clearTimeout(timeout);
+            autoSaveSettings();
+            updateQueueCount();
+        });
+    });
+}
+
+// Auto-save without status message
+function autoSaveSettings() {
+    const autofillData = collectFormData();
+    chrome.storage.local.set({ autofillData });
+}
+
+// Update queue count display
+function updateQueueCount() {
+    const data = collectFormData();
+    let count = 0;
+
+    Object.entries(data).forEach(([key, value]) => {
+        if (value && String(value).trim()) {
+            count++;
+        }
+    });
+
+    document.getElementById('fieldCount').textContent = count;
+}
+
+// Reset queue to start
+function resetQueue() {
+    chrome.storage.local.set({ currentQueueIndex: 0 }, () => {
+        showStatus('Queue reset! First value will be copied.', 'success');
+
+        // Notify content script
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs[0]) {
+                chrome.tabs.sendMessage(tabs[0].id, { action: 'resetQueue' }).catch(() => { });
+            }
+        });
+    });
+}
+
+// Initialize state autocomplete
+function initializeAutocomplete() {
+    const stateInput = document.getElementById('state');
+    const suggestionsDiv = document.getElementById('stateSuggestions');
+
+    fetch(chrome.runtime.getURL('states.json'))
+        .then(response => response.json())
+        .then(data => {
+            const states = data.states;
+
+            stateInput.addEventListener('input', () => {
+                const value = stateInput.value.toLowerCase().trim();
+
+                if (value.length === 0) {
+                    suggestionsDiv.classList.remove('active');
+                    return;
+                }
+
+                const matches = states.filter(state =>
+                    state.toLowerCase().includes(value)
+                );
+
+                if (matches.length > 0) {
+                    suggestionsDiv.innerHTML = matches
+                        .map(state => `<div class="autocomplete-suggestion">${state}</div>`)
+                        .join('');
+                    suggestionsDiv.classList.add('active');
+
+                    suggestionsDiv.querySelectorAll('.autocomplete-suggestion').forEach(suggestion => {
+                        suggestion.addEventListener('click', () => {
+                            stateInput.value = suggestion.textContent;
+                            suggestionsDiv.classList.remove('active');
+                            autoSaveSettings();
+                            updateQueueCount();
+                        });
+                    });
+                } else {
+                    suggestionsDiv.classList.remove('active');
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!stateInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                    suggestionsDiv.classList.remove('active');
+                }
+            });
+
+            // Keyboard navigation
+            stateInput.addEventListener('keydown', (e) => {
+                const suggestions = suggestionsDiv.querySelectorAll('.autocomplete-suggestion');
+                const selected = suggestionsDiv.querySelector('.autocomplete-suggestion.selected');
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (!selected) {
+                        suggestions[0]?.classList.add('selected');
+                    } else {
+                        selected.classList.remove('selected');
+                        (selected.nextElementSibling || suggestions[0])?.classList.add('selected');
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (selected) {
+                        selected.classList.remove('selected');
+                        (selected.previousElementSibling || suggestions[suggestions.length - 1])?.classList.add('selected');
+                    }
+                } else if (e.key === 'Enter' && selected) {
+                    e.preventDefault();
+                    stateInput.value = selected.textContent;
+                    suggestionsDiv.classList.remove('active');
+                    autoSaveSettings();
+                    updateQueueCount();
+                } else if (e.key === 'Escape') {
+                    suggestionsDiv.classList.remove('active');
+                }
+            });
+        })
+        .catch(error => console.error('Error loading states:', error));
+}
+
+// Calculate age from DOB
+function calculateAge() {
+    const dobInput = document.getElementById('dateOfBirth');
+    const ageInput = document.getElementById('age');
+
+    if (!dobInput.value) {
+        ageInput.value = '';
+        return;
+    }
+
+    const dob = new Date(dobInput.value);
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+        age--;
+    }
+
+    ageInput.value = age >= 0 ? age : '';
+}
+
+// Load settings
+function loadSettings() {
+    chrome.storage.local.get(['autofillData'], (result) => {
+        if (result.autofillData) {
+            const data = result.autofillData;
+
+            // Personal
+            document.getElementById('firstName').value = data.firstName || '';
+            document.getElementById('middleName').value = data.middleName || '';
+            document.getElementById('lastName').value = data.lastName || '';
+            document.getElementById('dateOfBirth').value = data.dateOfBirth || '';
+            document.getElementById('gender').value = data.gender || '';
+            document.getElementById('nationality').value = data.nationality || '';
+
+            if (data.dateOfBirth) calculateAge();
+
+            // Contact
+            document.getElementById('email').value = data.email || '';
+            document.getElementById('countryCode').value = data.countryCode || '+91';
+            document.getElementById('phoneNational').value = data.phoneNational || '';
+
+            // Address
+            document.getElementById('houseNo').value = data.houseNo || '';
+            document.getElementById('building').value = data.building || '';
+            document.getElementById('area').value = data.area || '';
+            document.getElementById('landmark').value = data.landmark || '';
+            document.getElementById('city').value = data.city || '';
+            document.getElementById('state').value = data.state || '';
+            document.getElementById('pincode').value = data.pincode || '';
+
+            // Professional
+            document.getElementById('qualification').value = data.qualification || '';
+            document.getElementById('organization').value = data.organization || '';
+            document.getElementById('passingYear').value = data.passingYear || '';
+
+            // Links
+            document.getElementById('linkedinUrl').value = data.linkedinUrl || '';
+            document.getElementById('portfolioUrl').value = data.portfolioUrl || '';
+            document.getElementById('githubUrl').value = data.githubUrl || '';
+        }
+
+        updateQueueCount();
+    });
+}
+
+// Normalize phone
+function normalizePhone(phone) {
+    return phone.replace(/[\s\-\(\)]/g, '');
+}
+
+// Collect form data
+function collectFormData() {
+    return {
+        firstName: document.getElementById('firstName').value.trim(),
+        middleName: document.getElementById('middleName').value.trim(),
+        lastName: document.getElementById('lastName').value.trim(),
+        dateOfBirth: document.getElementById('dateOfBirth').value,
+        age: document.getElementById('age').value,
+        gender: document.getElementById('gender').value,
+        nationality: document.getElementById('nationality').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        countryCode: normalizePhone(document.getElementById('countryCode').value.trim() || '+91'),
+        phoneNational: normalizePhone(document.getElementById('phoneNational').value.trim()),
+        houseNo: document.getElementById('houseNo').value.trim(),
+        building: document.getElementById('building').value.trim(),
+        area: document.getElementById('area').value.trim(),
+        landmark: document.getElementById('landmark').value.trim(),
+        city: document.getElementById('city').value.trim(),
+        state: document.getElementById('state').value.trim(),
+        pincode: document.getElementById('pincode').value.trim(),
+        qualification: document.getElementById('qualification').value.trim(),
+        organization: document.getElementById('organization').value.trim(),
+        passingYear: document.getElementById('passingYear').value.trim(),
+        linkedinUrl: document.getElementById('linkedinUrl').value.trim(),
+        portfolioUrl: document.getElementById('portfolioUrl').value.trim(),
+        githubUrl: document.getElementById('githubUrl').value.trim()
+    };
+}
+
+// Save settings
+function saveSettings() {
+    const autofillData = collectFormData();
+
+    // Ensure country code starts with +
+    if (autofillData.countryCode && !autofillData.countryCode.startsWith('+')) {
+        autofillData.countryCode = '+' + autofillData.countryCode;
+    }
+
+    // Reset queue index when saving new data
+    chrome.storage.local.set({
+        autofillData,
+        currentQueueIndex: 0
+    }, () => {
+        showStatus('✓ Data saved! Queue ready.', 'success');
+        updateQueueCount();
+    });
+}
+
+// Clear settings
+function clearSettings() {
+    if (confirm('Clear all saved data?')) {
+        chrome.storage.local.remove(['autofillData', 'currentQueueIndex'], () => {
+            document.getElementById('settingsForm').reset();
+            document.getElementById('countryCode').value = '+91';
+            showStatus('✓ All data cleared.', 'success');
+            updateQueueCount();
+        });
+    }
+}
+
+// Show status message
+function showStatus(message, type) {
+    const statusEl = document.getElementById('status');
+    statusEl.textContent = message;
+    statusEl.className = `status ${type}`;
+
+    setTimeout(() => {
+        statusEl.className = 'status';
+    }, 3000);
+}

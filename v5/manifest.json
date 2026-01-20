@@ -1,0 +1,36 @@
+{
+    "manifest_version": 3,
+    "name": "Sequential Form Fill Pro",
+    "version": "5.0.0",
+    "description": "Double-click to fill form fields sequentially. Each fill copies the next value to clipboard automatically.",
+    "permissions": [
+        "storage",
+        "clipboardWrite",
+        "clipboardRead",
+        "activeTab"
+    ],
+    "icons": {
+        "16": "icon16.png",
+        "48": "icon48.png",
+        "128": "icon128.png"
+    },
+    "action": {
+        "default_popup": "popup.html",
+        "default_title": "Sequential Form Fill Pro"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "css": [
+                "content.css"
+            ],
+            "run_at": "document_idle",
+            "all_frames": false
+        }
+    ]
+}

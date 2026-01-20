@@ -1,0 +1,217 @@
+/* Sequential Form Fill Pro - Content Styles */
+
+/* Floating Action Button */
+#sequential-fill-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 2147483647;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: system-ui, -apple-system, sans-serif;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#sequential-fill-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+#sequential-fill-btn:active {
+    transform: translateY(0);
+}
+
+#sequential-fill-btn.ready {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4);
+}
+
+#sequential-fill-btn.filling {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* Notification Toast */
+.sfp-notification {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    z-index: 2147483647;
+    padding: 12px 18px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    font-size: 13px;
+    font-family: system-ui, -apple-system, sans-serif;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+    transition: all 0.25s ease;
+    max-width: 280px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sfp-notification.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.sfp-notification.success {
+    background: linear-gradient(135deg, rgba(17, 153, 142, 0.95) 0%, rgba(56, 239, 125, 0.95) 100%);
+}
+
+.sfp-notification.info {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%);
+}
+
+.sfp-notification.warning {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.95) 0%, rgba(239, 68, 68, 0.95) 100%);
+}
+
+/* Queue Preview Panel */
+.sfp-queue-panel {
+    position: fixed;
+    bottom: 70px;
+    right: 20px;
+    z-index: 2147483646;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    font-family: system-ui, -apple-system, sans-serif;
+    max-width: 300px;
+    max-height: 400px;
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.sfp-queue-panel.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.sfp-queue-panel h4 {
+    margin: 0 0 12px 0;
+    font-size: 13px;
+    color: #666;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sfp-queue-item {
+    padding: 8px 12px;
+    margin: 4px 0;
+    border-radius: 8px;
+    font-size: 12px;
+    background: #f5f5f5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.sfp-queue-item.current {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    font-weight: 600;
+}
+
+.sfp-queue-item.filled {
+    background: #d4edda;
+    color: #155724;
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+
+.sfp-queue-item .label {
+    font-weight: 500;
+}
+
+.sfp-queue-item .value {
+    font-size: 11px;
+    opacity: 0.8;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Field Highlight on Fill */
+.sfp-field-highlight {
+    outline: 3px solid #667eea !important;
+    outline-offset: 2px;
+    animation: sfp-pulse 0.6s ease-out;
+}
+
+@keyframes sfp-pulse {
+    0% {
+        outline-color: #667eea;
+        box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(102, 126, 234, 0);
+    }
+
+    100% {
+        outline-color: #38ef7d;
+        box-shadow: 0 0 0 0 rgba(56, 239, 125, 0);
+    }
+}
+
+/* Next Field Indicator */
+.sfp-next-field {
+    outline: 2px dashed #f59e0b !important;
+    outline-offset: 2px;
+}
+
+/* Clipboard Copied Indicator */
+.sfp-clipboard-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2147483647;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    font-size: 12px;
+    font-family: system-ui, -apple-system, sans-serif;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: all 0.3s ease;
+}
+
+.sfp-clipboard-indicator.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.sfp-clipboard-indicator .label {
+    color: #a0aec0;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sfp-clipboard-indicator .value {
+    font-weight: 600;
+    margin-top: 4px;
+}

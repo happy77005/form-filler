@@ -1,0 +1,66 @@
+/* Floating Auto-Fill Button */
+#autofill-floating-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999999;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  padding: 14px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+#autofill-floating-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 30px rgba(102, 126, 234, 0.5);
+}
+
+#autofill-floating-btn:active {
+  transform: translateY(-1px);
+}
+
+#autofill-floating-btn.filling {
+  background: linear-gradient(135deg, #52c234 0%, #61b15a 100%);
+  pointer-events: none;
+}
+
+#autofill-floating-btn.filling::after {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border: 2px solid white;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-left: 8px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Highlight filled fields briefly */
+.autofill-highlight {
+  animation: highlightField 0.6s ease;
+}
+
+@keyframes highlightField {
+  0%, 100% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: #e7f3ff;
+  }
+}

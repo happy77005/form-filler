@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto Form Fill Pro</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 400px;
+      max-height: 550px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 12px;
+      overflow-y: auto;
+    }
+
+    .container {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    h1 {
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .subtitle {
+      color: #888;
+      font-size: 11px;
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #667eea;
+      margin: 14px 0 8px 0;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #e1e8ed;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .form-group {
+      flex: 1;
+      margin-bottom: 8px;
+    }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: #555;
+      margin-bottom: 3px;
+    }
+
+    label .required {
+      color: #dc3545;
+      margin-left: 2px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 12px;
+      transition: border-color 0.2s;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .phone-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .phone-group .country-code {
+      width: 70px;
+      flex-shrink: 0;
+    }
+
+    .shortcuts-box {
+      background: #f8f9fa;
+      border-radius: 6px;
+      padding: 10px;
+      margin: 12px 0;
+      font-size: 11px;
+    }
+
+    .shortcuts-box strong {
+      color: #667eea;
+    }
+
+    .shortcut-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+    }
+
+    .shortcut-key {
+      font-family: monospace;
+      background: white;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 10px;
+      border: 1px solid #ddd;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f1f3f5;
+      color: #666;
+    }
+
+    .btn-secondary:hover {
+      background: #e9ecef;
+    }
+
+    .status {
+      margin-top: 10px;
+      padding: 8px;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 12px;
+      display: none;
+    }
+
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      display: block;
+    }
+
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>📋 Auto Form Fill Pro</h1>
+    <p class="subtitle">Fill in your details, then use Ctrl+Shift+F to autofill forms</p>
+
+    <form id="settingsForm">
+      <!-- Personal Info -->
+      <div class="section-title">👤 Personal Information</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name <span class="required">*</span></label>
+          <input type="text" id="firstName" placeholder="John" required>
+        </div>
+        <div class="form-group">
+          <label>Last Name <span class="required">*</span></label>
+          <input type="text" id="lastName" placeholder="Doe" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Email <span class="required">*</span></label>
+        <input type="email" id="email" placeholder="john@example.com" required>
+      </div>
+
+      <div class="form-group">
+        <label>Phone Number <span class="required">*</span></label>
+        <div class="phone-group">
+          <input type="text" id="countryCode" class="country-code" value="+91" maxlength="5">
+          <input type="tel" id="phone" placeholder="9876543210" required>
+        </div>
+      </div>
+
+      <!-- Address -->
+      <div class="section-title">🏠 Address</div>
+
+      <div class="form-group">
+        <label>Address <span class="required">*</span></label>
+        <input type="text" id="address" placeholder="123 Main Street, Apt 4B" required>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>City <span class="required">*</span></label>
+          <input type="text" id="city" placeholder="Mumbai" required>
+        </div>
+        <div class="form-group">
+          <label>State <span class="required">*</span></label>
+          <input type="text" id="state" placeholder="Maharashtra" required>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Country <span class="required">*</span></label>
+          <input type="text" id="country" placeholder="India" required>
+        </div>
+        <div class="form-group">
+          <label>Pincode</label>
+          <input type="text" id="pincode" placeholder="400001">
+        </div>
+      </div>
+
+      <!-- Education -->
+      <div class="section-title">🎓 Education</div>
+
+      <div class="form-group">
+        <label>College/University</label>
+        <input type="text" id="college" placeholder="IIT Mumbai">
+      </div>
+
+      <!-- Shortcuts -->
+      <div class="shortcuts-box">
+        <strong>⌨️ Keyboard Shortcuts</strong>
+        <div class="shortcut-item">
+          <span>Fill next field</span>
+          <span class="shortcut-key">Ctrl+Shift+F</span>
+        </div>
+        <div class="shortcut-item">
+          <span>Fill all fields</span>
+          <span class="shortcut-key">Ctrl+Shift+A</span>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button type="submit" class="btn-primary">💾 Save & Enable</button>
+        <button type="button" class="btn-secondary" id="clearBtn">🗑️ Clear</button>
+      </div>
+    </form>
+
+    <div id="status" class="status"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+
+</html>

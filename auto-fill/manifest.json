@@ -1,0 +1,62 @@
+{
+  "manifest_version": 3,
+  "name": "Auto Form Fill Pro",
+  "version": "3.0.0",
+  "description": "Copy form data text, then auto-fill with Ctrl+Shift+F. Works on restrictive sites like Workday.",
+  "permissions": [
+    "storage",
+    "clipboardWrite",
+    "clipboardRead",
+    "activeTab"
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Auto Form Fill Pro"
+  },
+  "commands": {
+    "fill-next-field": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+F",
+        "mac": "Command+Shift+F"
+      },
+      "description": "Fill the focused field with next parsed value"
+    },
+    "fill-all-fields": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+A",
+        "mac": "Command+Shift+A"
+      },
+      "description": "Fill all form fields at once"
+    },
+    "reset-fill-index": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+R",
+        "mac": "Command+Shift+R"
+      },
+      "description": "Reset fill index to start over"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ]
+}

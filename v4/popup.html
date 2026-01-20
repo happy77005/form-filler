@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Form Auto-Fill Settings</title>
+  <style>
+    body {
+      width: 450px;
+      max-height: 600px;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      overflow-y: auto;
+    }
+
+    .container {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+      color: #333;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #667eea;
+      margin: 24px 0 16px 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e1e8ed;
+    }
+
+    .section-title:first-of-type {
+      margin-top: 0;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #444;
+    }
+
+    label .optional {
+      color: #999;
+      font-weight: 400;
+      font-size: 12px;
+    }
+
+    label .required {
+      color: #dc3545;
+      font-weight: 700;
+      margin-left: 2px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="url"],
+    input[type="date"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 2px solid #e1e8ed;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    input:read-only {
+      background-color: #f8f9fa;
+      color: #666;
+      cursor: not-allowed;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-save:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-clear {
+      background: #f1f3f5;
+      color: #666;
+    }
+
+    .btn-clear:hover {
+      background: #e9ecef;
+    }
+
+    .status {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 14px;
+      display: none;
+    }
+
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      display: block;
+    }
+
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      display: block;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .row .form-group {
+      flex: 1;
+    }
+
+    .phone-input-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .phone-input-group .country-code {
+      width: 80px;
+      flex-shrink: 0;
+    }
+
+    .phone-input-group .phone-number {
+      flex: 1;
+    }
+
+    .info-text {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .autocomplete-container {
+      position: relative;
+    }
+
+    .autocomplete-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 2px solid #667eea;
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .autocomplete-suggestions.active {
+      display: block;
+    }
+
+    .autocomplete-suggestion {
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      font-size: 14px;
+    }
+
+    .autocomplete-suggestion:hover,
+    .autocomplete-suggestion.selected {
+      background-color: #f0f4ff;
+    }
+
+    .autocomplete-suggestion:last-child {
+      border-radius: 0 0 6px 6px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>🚀 Auto-Fill Settings</h1>
+    <p class="subtitle">Save your information to quickly fill forms across the web</p>
+
+    <form id="settingsForm">
+      <!-- Personal Information -->
+      <div class="section-title">👤 Personal Information</div>
+
+      <div class="row">
+        <div class="form-group">
+          <label for="firstName">First Name <span class="required">*</span></label>
+          <input type="text" id="firstName" placeholder="John" required>
+        </div>
+
+        <div class="form-group">
+          <label for="middleName">Middle Name <span class="optional">(optional)</span></label>
+          <input type="text" id="middleName" placeholder="Michael">
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Last Name <span class="required">*</span></label>
+          <input type="text" id="lastName" placeholder="Doe" required>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="form-group">
+          <label for="dateOfBirth">Date of Birth <span class="required">*</span></label>
+          <input type="date" id="dateOfBirth" required>
+        </div>
+
+        <div class="form-group">
+          <label for="age">Age <span class="optional">(auto-calculated)</span></label>
+          <input type="number" id="age" readonly placeholder="Auto-calculated">
+        </div>
+
+        <div class="form-group">
+          <label for="gender">Gender <span class="required">*</span></label>
+          <select id="gender" required>
+            <option value="">Select...</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+            <option value="prefer-not-to-say">Prefer not to say</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="nationality">Nationality <span class="required">*</span></label>
+        <input type="text" id="nationality" placeholder="Indian" required>
+      </div>
+
+      <!-- Contact Information -->
+      <div class="section-title">📞 Contact Information</div>
+
+      <div class="form-group">
+        <label for="email">Email Address <span class="required">*</span></label>
+        <input type="email" id="email" placeholder="john.doe@example.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone Number <span class="required">*</span></label>
+        <div class="phone-input-group">
+          <input type="text" id="countryCode" class="country-code" placeholder="+91" maxlength="5" value="+91">
+          <input type="tel" id="phoneNational" class="phone-number" placeholder="9876543210" maxlength="15" required>
+        </div>
+        <div class="info-text">Country code defaults to +91, you can change it if needed</div>
+      </div>
+
+      <div class="form-group">
+        <label for="alternatePhone">Alternate Phone <span class="optional">(optional)</span></label>
+        <div class="phone-input-group">
+          <input type="text" id="altCountryCode" class="country-code" placeholder="+91" maxlength="5" value="+91">
+          <input type="tel" id="altPhoneNational" class="phone-number" placeholder="9876543210" maxlength="15">
+        </div>
+      </div>
+
+      <!-- Address Information -->
+      <div class="section-title">🏠 Address Information</div>
+
+      <div class="row">
+        <div class="form-group">
+          <label for="houseNo">House/Flat No <span class="required">*</span></label>
+          <input type="text" id="houseNo" placeholder="A-101" required>
+        </div>
+
+        <div class="form-group">
+          <label for="building">Street/Building <span class="optional">(optional)</span></label>
+          <input type="text" id="building" placeholder="Green Valley Apartments">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="area">Area / Locality <span class="required">*</span></label>
+        <input type="text" id="area" placeholder="Andheri West" required>
+      </div>
+
+      <div class="form-group">
+        <label for="landmark">Landmark <span class="optional">(optional)</span></label>
+        <input type="text" id="landmark" placeholder="Near Metro Station">
+      </div>
+
+      <div class="row">
+        <div class="form-group">
+          <label for="city">City <span class="required">*</span></label>
+          <input type="text" id="city" placeholder="Mumbai" required>
+        </div>
+
+        <div class="form-group autocomplete-container">
+          <label for="state">State <span class="required">*</span></label>
+          <input type="text" id="state" placeholder="Maharashtra" autocomplete="off" required>
+          <div id="stateSuggestions" class="autocomplete-suggestions"></div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="pincode">Pincode / ZIP <span class="required">*</span></label>
+        <input type="text" id="pincode" placeholder="400001" maxlength="6" required>
+      </div>
+
+      <!-- Professional Information -->
+      <div class="section-title">💼 Professional Information</div>
+
+      <div class="form-group">
+        <label for="jobTitle">Job Title / Designation <span class="optional">(optional)</span></label>
+        <input type="text" id="jobTitle" placeholder="Software Engineer">
+      </div>
+
+      <div class="form-group">
+        <label for="organization">College / University / Organization <span class="optional">(optional)</span></label>
+        <input type="text" id="organization" placeholder="Harvard University">
+      </div>
+
+      <div class="form-group">
+        <label for="qualification">Educational Qualification <span class="optional">(optional)</span></label>
+        <input type="text" id="qualification" placeholder="B.Tech, MBA, M.Sc, etc.">
+      </div>
+
+      <div class="form-group">
+        <label for="passingYear">Passing Year / Graduation Year <span class="optional">(optional)</span></label>
+        <input type="text" id="passingYear" placeholder="2024" maxlength="4">
+      </div>
+
+      <!-- Social & Professional Links -->
+      <div class="section-title">🔗 Social & Professional Links</div>
+
+      <div class="form-group">
+        <label for="linkedinUrl">LinkedIn Profile <span class="optional">(optional)</span></label>
+        <input type="url" id="linkedinUrl" placeholder="https://linkedin.com/in/johndoe">
+      </div>
+
+      <div class="form-group">
+        <label for="portfolioUrl">Portfolio Website <span class="optional">(optional)</span></label>
+        <input type="url" id="portfolioUrl" placeholder="https://johndoe.com">
+      </div>
+
+      <div class="form-group">
+        <label for="githubUrl">GitHub Profile <span class="optional">(optional)</span></label>
+        <input type="url" id="githubUrl" placeholder="https://github.com/johndoe">
+      </div>
+
+      <div class="button-group">
+        <button type="submit" class="btn-save">💾 Save Settings</button>
+        <button type="button" class="btn-clear" id="clearBtn">🗑️ Clear All</button>
+      </div>
+    </form>
+
+    <div id="status" class="status"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+
+</html>
