@@ -279,6 +279,99 @@
         .instructions li {
             margin-bottom: 3px;
         }
+
+        /* Import/Export Styles */
+        .import-export-section {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .import-export-section h4 {
+            font-size: 12px;
+            color: #475569;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .import-export-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .ie-btn {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            background: #fff;
+            font-size: 12px;
+            font-weight: 500;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .ie-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .import-textarea {
+            width: 100%;
+            height: 80px;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 11px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            resize: vertical;
+            display: none;
+        }
+
+        .import-textarea.visible {
+            display: block;
+        }
+
+        .import-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .import-actions {
+            display: none;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .import-actions.visible {
+            display: flex;
+        }
+
+        .import-actions .ie-btn {
+            padding: 8px 12px;
+        }
+
+        .ie-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border: none;
+        }
+
+        .ie-btn.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
     </style>
 </head>
 
@@ -295,6 +388,20 @@
                 <div class="label">Fields Ready</div>
             </div>
             <button class="reset-btn" id="resetQueue">🔄 Reset Queue</button>
+        </div>
+
+        <!-- Import/Export Section -->
+        <div class="import-export-section">
+            <h4>📦 Import / Export Data</h4>
+            <div class="import-export-btns">
+                <button type="button" class="ie-btn" id="exportBtn">📤 Export JSON</button>
+                <button type="button" class="ie-btn" id="importBtn">📥 Import JSON</button>
+            </div>
+            <textarea class="import-textarea" id="importTextarea" placeholder='Paste JSON data here...'></textarea>
+            <div class="import-actions" id="importActions">
+                <button type="button" class="ie-btn" id="cancelImport">Cancel</button>
+                <button type="button" class="ie-btn primary" id="confirmImport">✓ Apply Data</button>
+            </div>
         </div>
 
         <div class="instructions">

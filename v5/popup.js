@@ -23,6 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle reset queue button
     document.getElementById('resetQueue').addEventListener('click', resetQueue);
 
+    // Import/Export handlers
+    document.getElementById('exportBtn').addEventListener('click', exportData);
+    document.getElementById('importBtn').addEventListener('click', showImportUI);
+    document.getElementById('cancelImport').addEventListener('click', hideImportUI);
+    document.getElementById('confirmImport').addEventListener('click', applyImportedData);
+
     // Auto-persist on input change
     setupAutoPersist();
 
@@ -316,4 +322,102 @@ function showStatus(message, type) {
     setTimeout(() => {
         statusEl.className = 'status';
     }, 3000);
+}
+
+// ====== Import/Export Functions ======
+
+// Export data as JSON file download
+function exportData() {
+    const data = collectFormData();
+
+    // Check if there's data to export
+    const hasData = Object.values(data).some(v => v && String(v).trim());
+    if (!hasData) {
+        showStatus('No data to export!', 'error');
+        return;
+    }
+
+    // Create JSON blob
+    const jsonStr = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    // Create download link
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `formfill-data-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    showStatus('✓ Data exported!', 'success');
+}
+
+// Show import UI
+function showImportUI() {
+    document.getElementById('importTextarea').classList.add('visible');
+    document.getElementById('importActions').classList.add('visible');
+    document.getElementById('importTextarea').value = '';
+    document.getElementById('importTextarea').focus();
+}
+
+// Hide import UI
+function hideImportUI() {
+    document.getElementById('importTextarea').classList.remove('visible');
+    document.getElementById('importActions').classList.remove('visible');
+    document.getElementById('importTextarea').value = '';
+}
+
+// Apply imported JSON data
+function applyImportedData() {
+    const textarea = document.getElementById('importTextarea');
+    const jsonStr = textarea.value.trim();
+
+    if (!jsonStr) {
+        showStatus('Please paste JSON data first!', 'error');
+        return;
+    }
+
+    try {
+        const data = JSON.parse(jsonStr);
+
+        // Validate it's an object
+        if (typeof data !== 'object' || Array.isArray(data)) {
+            throw new Error('Invalid format');
+        }
+
+        // Apply data to form fields
+        const fieldMappings = [
+            'firstName', 'middleName', 'lastName', 'dateOfBirth', 'gender', 'nationality',
+            'email', 'countryCode', 'phoneNational',
+            'houseNo', 'building', 'area', 'landmark', 'city', 'state', 'pincode',
+            'qualification', 'organization', 'passingYear',
+            'linkedinUrl', 'portfolioUrl', 'githubUrl'
+        ];
+
+        fieldMappings.forEach(field => {
+            const el = document.getElementById(field);
+            if (el && data[field] !== undefined) {
+                el.value = data[field];
+            }
+        });
+
+        // Recalculate age if DOB was imported
+        if (data.dateOfBirth) {
+            calculateAge();
+        }
+
+        // Save to storage
+        saveSettings();
+
+        // Hide import UI
+        hideImportUI();
+
+        showStatus('✓ Data imported successfully!', 'success');
+
+    } catch (error) {
+        console.error('Import error:', error);
+        showStatus('Invalid JSON format!', 'error');
+    }
 }
