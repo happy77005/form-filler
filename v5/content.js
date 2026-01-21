@@ -100,7 +100,7 @@
         middleName: /\b(middle\s*name|mname)\s*[:\.\*]?\s*$/im,
         lastName: /\b(last\s*name|lname|surname|family\s*name)\s*[:\.\*]?\s*$/im,
         email: /\b(e-?mail|email\s*address|personal\s*email)\s*[:\.\*]?\s*$/im,
-        phone: /\b(phone|mobile|cell|cellular|contact\s*number|tel)\s*[:\.\*]?\s*$/im,
+        phone: /\b(phone\s*number|phone|mobile\s*number|mobile|cell|cellular|contact\s*number|tel)\s*[:\.\*]?\s*$/im,
         dateOfBirth: /\b(date\s*of\s*birth|dob|birth\s*date|birthday)\s*[:\.\*]?\s*$/im,
         age: /\bage\s*[:\.\*]?\s*$/im,
         gender: /\b(gender|sex)\s*[:\.\*]?\s*$/im,
