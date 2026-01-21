@@ -1,0 +1,200 @@
+/* Form Fill Helper v6 - Floating Panel Styles */
+
+/* Floating Toggle Button */
+#ffh-toggle-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 2147483647;
+    width: 56px;
+    height: 56px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#ffh-toggle-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+}
+
+#ffh-toggle-btn.active {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    box-shadow: 0 4px 20px rgba(239, 68, 68, 0.5);
+}
+
+/* Floating Form Panel */
+#ffh-panel {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    z-index: 2147483646;
+    width: 340px;
+    max-height: 500px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+#ffh-panel.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+/* Panel Header */
+.ffh-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    padding: 16px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Panel Body */
+.ffh-body {
+    padding: 16px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Field Row */
+.ffh-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    padding: 10px 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s;
+}
+
+.ffh-field:hover {
+    background: #f1f5f9;
+    border-color: #667eea;
+}
+
+.ffh-field.dragging {
+    opacity: 0.5;
+    border-color: #667eea;
+    background: #e0e7ff;
+}
+
+.ffh-field-label {
+    font-size: 10px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 70px;
+}
+
+.ffh-field-value {
+    flex: 1;
+    font-size: 13px;
+    color: #1e293b;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: grab;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: #fff;
+    border: 1px dashed #cbd5e1;
+}
+
+.ffh-field-value:active {
+    cursor: grabbing;
+}
+
+.ffh-copy-btn {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    background: #667eea;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.ffh-copy-btn:hover {
+    background: #5a67d8;
+    transform: scale(1.05);
+}
+
+.ffh-copy-btn.copied {
+    background: #10b981;
+}
+
+/* Empty State */
+.ffh-empty {
+    text-align: center;
+    padding: 30px 20px;
+    color: #64748b;
+}
+
+.ffh-empty p {
+    margin: 8px 0;
+    font-size: 13px;
+}
+
+/* Section Divider */
+.ffh-section {
+    font-size: 11px;
+    color: #667eea;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 16px 0 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Toast Notification */
+.ffh-toast {
+    position: fixed;
+    bottom: 160px;
+    right: 20px;
+    z-index: 2147483647;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    font-size: 13px;
+    font-family: system-ui, sans-serif;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    pointer-events: none;
+}
+
+.ffh-toast.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.ffh-toast.success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
