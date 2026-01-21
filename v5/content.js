@@ -94,33 +94,33 @@
 
     // ====== Field Detection Patterns (Regex) ======
     // Used to detect field labels from selected text
-    // Order matters - more specific patterns should match first
+    // Patterns match field keywords - allowing trailing text like ". Required"
     const FIELD_DETECTION_PATTERNS = {
-        firstName: /\b(first\s*name|fname|given\s*name|forename)\s*[:\.\*]?\s*$/im,
-        middleName: /\b(middle\s*name|mname)\s*[:\.\*]?\s*$/im,
-        lastName: /\b(last\s*name|lname|surname|family\s*name)\s*[:\.\*]?\s*$/im,
-        email: /\b(e-?mail|email\s*address|personal\s*email)\s*[:\.\*]?\s*$/im,
-        phone: /\b(phone\s*number|phone|mobile\s*number|mobile|cell|cellular|contact\s*number|tel)\s*[:\.\*]?\s*$/im,
-        dateOfBirth: /\b(date\s*of\s*birth|dob|birth\s*date|birthday)\s*[:\.\*]?\s*$/im,
-        age: /\bage\s*[:\.\*]?\s*$/im,
-        gender: /\b(gender|sex)\s*[:\.\*]?\s*$/im,
-        nationality: /\b(nationality|citizen|citizenship)\s*[:\.\*]?\s*$/im,
-        houseNo: /\b(house\s*no|flat\s*no|apartment|apt|unit|door\s*no|plot)\s*[:\.\*]?\s*$/im,
-        building: /\b(building|street|block)\s*[:\.\*]?\s*$/im,
-        area: /\b(area|locality|sector|colony|neighborhood)\s*[:\.\*]?\s*$/im,
-        landmark: /\b(landmark)\s*[:\.\*]?\s*$/im,
-        city: /\b(city|town|municipality)\s*[:\.\*]?\s*$/im,
-        state: /\b(state|province|region)\s*[:\.\*]?\s*$/im,
-        pincode: /\b(zip|postal|pincode|pin\s*code|postcode)\s*[:\.\*]?\s*$/im,
-        qualification: /\b(qualification|degree|education|course)\s*[:\.\*]?\s*$/im,
-        organization: /\b(college|university|institute|institution|organization|company)\s*[:\.\*]?\s*$/im,
-        startingYear: /\b(starting\s*year|start\s*year|joining\s*year|from\s*year)\s*[:\.\*]?\s*$/im,
-        passingYear: /\b(passing\s*year|graduation\s*year|year\s*of\s*passing|end\s*year)\s*[:\.\*]?\s*$/im,
-        linkedinUrl: /\b(linkedin)\s*[:\.\*]?\s*$/im,
-        portfolioUrl: /\b(portfolio|website|personal\s*site)\s*[:\.\*]?\s*$/im,
-        githubUrl: /\b(github)\s*[:\.\*]?\s*$/im,
-        // Full Name - very strict, only match when it's clearly a label
-        fullName: /^(full\s*name|your\s*name)\s*[:\.\*]?\s*$/im
+        firstName: /\b(first\s*name|fname|given\s*name|forename)\b/i,
+        middleName: /\b(middle\s*name|mname)\b/i,
+        lastName: /\b(last\s*name|lname|surname|family\s*name)\b/i,
+        email: /\b(personal\s*email|email\s*address|e-?mail)\b/i,
+        phone: /\b(phone\s*number|cellular\s*number|mobile\s*number|contact\s*number|phone|mobile|cell)\b/i,
+        dateOfBirth: /\b(date\s*of\s*birth|dob|birth\s*date|birthday)\b/i,
+        age: /\bage\b/i,
+        gender: /\b(gender|sex)\b/i,
+        nationality: /\b(nationality|citizen|citizenship)\b/i,
+        houseNo: /\b(house\s*no|flat\s*no|apartment\s*no|apt|unit|door\s*no|plot)\b/i,
+        building: /\b(building\s*name|street\s*name|building|street|block)\b/i,
+        area: /\b(area|locality|sector|colony|neighborhood)\b/i,
+        landmark: /\b(landmark)\b/i,
+        city: /\b(city|town|municipality|region\/city)\b/i,
+        state: /\b(state\/province|state|province)\b/i,
+        pincode: /\b(zip\s*code|postal\s*code|pincode|pin\s*code|postcode)\b/i,
+        qualification: /\b(qualification|highest\s*degree|degree|education|course)\b/i,
+        organization: /\b(college|university|institute|institution|organization|company)\b/i,
+        startingYear: /\b(starting\s*year|start\s*year|joining\s*year|from\s*year)\b/i,
+        passingYear: /\b(passing\s*year|graduation\s*year|year\s*of\s*passing|end\s*year)\b/i,
+        linkedinUrl: /\b(linkedin\s*profile|linkedin)\b/i,
+        portfolioUrl: /\b(portfolio|website|personal\s*site)\b/i,
+        githubUrl: /\b(github)\b/i,
+        // Full Name - only match clear labels, not sentences
+        fullName: /^full\s*name\b/im
     };
 
     // ====== Load Saved Data ======
