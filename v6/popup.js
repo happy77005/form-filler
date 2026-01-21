@@ -51,7 +51,6 @@ function setupAutoPersist() {
             clearTimeout(timeout);
             timeout = setTimeout(() => {
                 autoSaveSettings();
-                updateQueueCount();
             }, 500);
         });
 
@@ -102,7 +101,6 @@ function initializeAutocomplete() {
                             stateInput.value = suggestion.textContent;
                             suggestionsDiv.classList.remove('active');
                             autoSaveSettings();
-                            updateQueueCount();
                         });
                     });
                 } else {
@@ -140,7 +138,6 @@ function initializeAutocomplete() {
                     stateInput.value = selected.textContent;
                     suggestionsDiv.classList.remove('active');
                     autoSaveSettings();
-                    updateQueueCount();
                 } else if (e.key === 'Escape') {
                     suggestionsDiv.classList.remove('active');
                 }
@@ -264,8 +261,7 @@ function saveSettings() {
         autofillData,
         currentQueueIndex: 0
     }, () => {
-        showStatus('✓ Data saved! Queue ready.', 'success');
-        updateQueueCount();
+        showStatus('✓ Data saved!', 'success');
     });
 }
 
@@ -276,7 +272,6 @@ function clearSettings() {
             document.getElementById('settingsForm').reset();
             document.getElementById('countryCode').value = '+91';
             showStatus('✓ All data cleared.', 'success');
-            updateQueueCount();
         });
     }
 }
