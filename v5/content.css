@@ -377,3 +377,42 @@
     background: #f1f5f9;
     color: #64748b;
 }
+
+/* Editable field list with remove buttons */
+.sfp-detected-panel .field-list-editable {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.sfp-detected-panel .field-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    background: #e0f7fa;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.sfp-detected-panel .field-item .field-label {
+    color: #00796b;
+    font-weight: 500;
+}
+
+.sfp-detected-panel .field-item .remove-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.sfp-detected-panel .field-item .remove-btn:hover {
+    background: #fee2e2;
+}

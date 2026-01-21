@@ -94,31 +94,33 @@
 
     // ====== Field Detection Patterns (Regex) ======
     // Used to detect field labels from selected text
+    // Order matters - more specific patterns should match first
     const FIELD_DETECTION_PATTERNS = {
-        firstName: /\b(first\s*name|fname|given\s*name|forename)\b/i,
-        middleName: /\b(middle\s*name|mname)\b/i,
-        lastName: /\b(last\s*name|lname|surname|family\s*name)\b/i,
-        email: /\b(e-?mail|email\s*address|personal\s*email)\b/i,
-        phone: /\b(phone|mobile|cell|cellular|contact\s*number|tel)\b/i,
-        dateOfBirth: /\b(date\s*of\s*birth|dob|birth\s*date|birthday)\b/i,
-        age: /\b(age)\b/i,
-        gender: /\b(gender|sex)\b/i,
-        nationality: /\b(nationality|citizen|citizenship)\b/i,
-        houseNo: /\b(house\s*no|flat\s*no|apartment|apt|unit|door\s*no|plot)\b/i,
-        building: /\b(building|street|block)\b/i,
-        area: /\b(area|locality|sector|colony|neighborhood)\b/i,
-        landmark: /\b(landmark|near|nearby)\b/i,
-        city: /\b(city|town|municipality)\b/i,
-        state: /\b(state|province|region)\b/i,
-        pincode: /\b(zip|postal|pincode|pin\s*code|postcode)\b/i,
-        qualification: /\b(qualification|degree|education|course)\b/i,
-        organization: /\b(college|university|institute|institution|organization|company)\b/i,
-        startingYear: /\b(starting\s*year|start\s*year|joining\s*year|from\s*year)\b/i,
-        passingYear: /\b(passing\s*year|graduation\s*year|year\s*of\s*passing|end\s*year)\b/i,
-        linkedinUrl: /\b(linkedin)\b/i,
-        portfolioUrl: /\b(portfolio|website|personal\s*site)\b/i,
-        githubUrl: /\b(github)\b/i,
-        fullName: /\b(full\s*name|your\s*name|name)\b/i
+        firstName: /\b(first\s*name|fname|given\s*name|forename)\s*[:\.\*]?\s*$/im,
+        middleName: /\b(middle\s*name|mname)\s*[:\.\*]?\s*$/im,
+        lastName: /\b(last\s*name|lname|surname|family\s*name)\s*[:\.\*]?\s*$/im,
+        email: /\b(e-?mail|email\s*address|personal\s*email)\s*[:\.\*]?\s*$/im,
+        phone: /\b(phone|mobile|cell|cellular|contact\s*number|tel)\s*[:\.\*]?\s*$/im,
+        dateOfBirth: /\b(date\s*of\s*birth|dob|birth\s*date|birthday)\s*[:\.\*]?\s*$/im,
+        age: /\bage\s*[:\.\*]?\s*$/im,
+        gender: /\b(gender|sex)\s*[:\.\*]?\s*$/im,
+        nationality: /\b(nationality|citizen|citizenship)\s*[:\.\*]?\s*$/im,
+        houseNo: /\b(house\s*no|flat\s*no|apartment|apt|unit|door\s*no|plot)\s*[:\.\*]?\s*$/im,
+        building: /\b(building|street|block)\s*[:\.\*]?\s*$/im,
+        area: /\b(area|locality|sector|colony|neighborhood)\s*[:\.\*]?\s*$/im,
+        landmark: /\b(landmark)\s*[:\.\*]?\s*$/im,
+        city: /\b(city|town|municipality)\s*[:\.\*]?\s*$/im,
+        state: /\b(state|province|region)\s*[:\.\*]?\s*$/im,
+        pincode: /\b(zip|postal|pincode|pin\s*code|postcode)\s*[:\.\*]?\s*$/im,
+        qualification: /\b(qualification|degree|education|course)\s*[:\.\*]?\s*$/im,
+        organization: /\b(college|university|institute|institution|organization|company)\s*[:\.\*]?\s*$/im,
+        startingYear: /\b(starting\s*year|start\s*year|joining\s*year|from\s*year)\s*[:\.\*]?\s*$/im,
+        passingYear: /\b(passing\s*year|graduation\s*year|year\s*of\s*passing|end\s*year)\s*[:\.\*]?\s*$/im,
+        linkedinUrl: /\b(linkedin)\s*[:\.\*]?\s*$/im,
+        portfolioUrl: /\b(portfolio|website|personal\s*site)\s*[:\.\*]?\s*$/im,
+        githubUrl: /\b(github)\s*[:\.\*]?\s*$/im,
+        // Full Name - very strict, only match when it's clearly a label
+        fullName: /^(full\s*name|your\s*name)\s*[:\.\*]?\s*$/im
     };
 
     // ====== Load Saved Data ======
@@ -795,10 +797,18 @@
     }
 
     /**
-     * Show detected fields and confirm
+     * Show detected fields and confirm - with ability to remove false positives
      */
+    let currentDetectedFields = []; // Store fields so we can modify them
+
     function showDetectedFields(fields) {
+        currentDetectedFields = [...fields]; // Copy array
+        renderDetectedPanel();
+    }
+
+    function renderDetectedPanel() {
         const panel = createDetectedPanel();
+        const fields = currentDetectedFields;
 
         if (fields.length === 0) {
             panel.innerHTML = `
@@ -809,13 +819,18 @@
                 </div>
             `;
         } else {
-            const fieldTags = fields.map(f =>
-                `<span class="field-tag">${f.label}</span>`
-            ).join('');
+            // Create field tags with remove buttons
+            const fieldItems = fields.map((f, index) => `
+                <div class="field-item" data-index="${index}">
+                    <span class="field-label">${index + 1}. ${f.label}</span>
+                    <button class="remove-btn" data-index="${index}" title="Remove">✕</button>
+                </div>
+            `).join('');
 
             panel.innerHTML = `
                 <h4>✅ Detected ${fields.length} Fields</h4>
-                <div class="field-list">${fieldTags}</div>
+                <p style="font-size: 10px; color: #888; margin-bottom: 8px;">Click ✕ to remove incorrect fields</p>
+                <div class="field-list-editable">${fieldItems}</div>
                 <div class="actions">
                     <button class="action-btn secondary" id="sfp-cancel-scan">Cancel</button>
                     <button class="action-btn primary" id="sfp-apply-scan">Apply Order</button>
@@ -829,6 +844,15 @@
         const retryBtn = panel.querySelector('#sfp-retry-scan');
         const cancelBtn = panel.querySelector('#sfp-cancel-scan');
         const applyBtn = panel.querySelector('#sfp-apply-scan');
+
+        // Remove button handlers
+        panel.querySelectorAll('.remove-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const index = parseInt(e.target.dataset.index);
+                currentDetectedFields.splice(index, 1);
+                renderDetectedPanel(); // Re-render
+            });
+        });
 
         if (retryBtn) {
             retryBtn.addEventListener('click', () => {
@@ -845,11 +869,15 @@
 
         if (applyBtn) {
             applyBtn.addEventListener('click', () => {
-                buildCustomQueue(fields);
+                if (currentDetectedFields.length === 0) {
+                    showNotification('⚠️ No fields to apply!', 'warning');
+                    return;
+                }
+                buildCustomQueue(currentDetectedFields);
                 panel.classList.remove('visible');
                 updateFloatingButton();
                 copyNextToClipboard();
-                showNotification(`✅ Custom order set! ${fields.length} fields ready.`, 'success');
+                showNotification(`✅ Custom order set! ${currentDetectedFields.length} fields ready.`, 'success');
             });
         }
     }
