@@ -388,8 +388,9 @@
 
     /**
      * Copy the NEXT queue item to clipboard
+     * @param {boolean} silent - If true, don't show notifications on failure
      */
-    async function copyNextToClipboard() {
+    async function copyNextToClipboard(silent = false) {
         if (currentQueueIndex >= fillQueue.length) {
             console.log("[SFP v5] Queue complete, nothing more to copy");
             return false;
@@ -397,24 +398,59 @@
 
         const nextItem = fillQueue[currentQueueIndex];
 
+        // Try modern Clipboard API first
         try {
             await navigator.clipboard.writeText(nextItem.value);
             console.log("[SFP v5] Copied to clipboard:", nextItem.label, "=", nextItem.value);
             showClipboardReady(nextItem.value, nextItem.label);
             return true;
         } catch (error) {
-            console.error("[SFP v5] Clipboard write failed:", error);
-            // Fallback method
-            const textarea = document.createElement('textarea');
-            textarea.value = nextItem.value;
-            textarea.style.cssText = 'position:fixed;left:-9999px;';
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            showClipboardReady(nextItem.value, nextItem.label);
-            return true;
+            console.log("[SFP v5] Clipboard API failed (requires user gesture):", error.name);
+
+            // Try fallback method using execCommand
+            try {
+                const success = copyViaExecCommand(nextItem.value);
+                if (success) {
+                    console.log("[SFP v5] Fallback copy succeeded");
+                    showClipboardReady(nextItem.value, nextItem.label);
+                    return true;
+                }
+            } catch (e) {
+                console.log("[SFP v5] Fallback also failed");
+            }
+
+            // Both methods failed - likely needs user gesture
+            if (!silent) {
+                showNotification(`📋 Next: ${nextItem.label} - Click form to enable clipboard`, 'info');
+            }
+            return false;
         }
+    }
+
+    /**
+     * Fallback clipboard copy using execCommand
+     */
+    function copyViaExecCommand(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
+        textarea.setAttribute('readonly', '');
+        document.body.appendChild(textarea);
+
+        const selected = document.getSelection().rangeCount > 0
+            ? document.getSelection().getRangeAt(0)
+            : false;
+
+        textarea.select();
+        const success = document.execCommand('copy');
+        document.body.removeChild(textarea);
+
+        if (selected) {
+            document.getSelection().removeAllRanges();
+            document.getSelection().addRange(selected);
+        }
+
+        return success;
     }
 
     /**
@@ -902,9 +938,9 @@
             injectFloatingButton();
             injectScanButton();
 
-            // Copy first value to clipboard on page load
+            // Try to copy first value to clipboard (silent - user gesture may be needed)
             if (fillQueue.length > 0 && currentQueueIndex < fillQueue.length) {
-                await copyNextToClipboard();
+                await copyNextToClipboard(true); // silent = true, don't show errors
             }
         }
 
