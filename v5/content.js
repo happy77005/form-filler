@@ -33,6 +33,9 @@
     let notificationElement = null;
     let clipboardIndicator = null;
     let queuePanel = null;
+    let isSelectionMode = false;  // Custom form scanning mode
+    let selectionModeElement = null;
+    let detectedPanel = null;
 
     // ====== Define Fill Order ======
     // This determines the sequence in which fields will be filled
@@ -87,6 +90,35 @@
         linkedinUrl: 'LinkedIn',
         portfolioUrl: 'Portfolio',
         githubUrl: 'GitHub'
+    };
+
+    // ====== Field Detection Patterns (Regex) ======
+    // Used to detect field labels from selected text
+    const FIELD_DETECTION_PATTERNS = {
+        firstName: /\b(first\s*name|fname|given\s*name|forename)\b/i,
+        middleName: /\b(middle\s*name|mname)\b/i,
+        lastName: /\b(last\s*name|lname|surname|family\s*name)\b/i,
+        email: /\b(e-?mail|email\s*address|personal\s*email)\b/i,
+        phone: /\b(phone|mobile|cell|cellular|contact\s*number|tel)\b/i,
+        dateOfBirth: /\b(date\s*of\s*birth|dob|birth\s*date|birthday)\b/i,
+        age: /\b(age)\b/i,
+        gender: /\b(gender|sex)\b/i,
+        nationality: /\b(nationality|citizen|citizenship)\b/i,
+        houseNo: /\b(house\s*no|flat\s*no|apartment|apt|unit|door\s*no|plot)\b/i,
+        building: /\b(building|street|block)\b/i,
+        area: /\b(area|locality|sector|colony|neighborhood)\b/i,
+        landmark: /\b(landmark|near|nearby)\b/i,
+        city: /\b(city|town|municipality)\b/i,
+        state: /\b(state|province|region)\b/i,
+        pincode: /\b(zip|postal|pincode|pin\s*code|postcode)\b/i,
+        qualification: /\b(qualification|degree|education|course)\b/i,
+        organization: /\b(college|university|institute|institution|organization|company)\b/i,
+        startingYear: /\b(starting\s*year|start\s*year|joining\s*year|from\s*year)\b/i,
+        passingYear: /\b(passing\s*year|graduation\s*year|year\s*of\s*passing|end\s*year)\b/i,
+        linkedinUrl: /\b(linkedin)\b/i,
+        portfolioUrl: /\b(portfolio|website|personal\s*site)\b/i,
+        githubUrl: /\b(github)\b/i,
+        fullName: /\b(full\s*name|your\s*name|name)\b/i
     };
 
     // ====== Load Saved Data ======
@@ -612,12 +644,263 @@
         }
     });
 
+    // ====== Custom Form Scanning ======
+
+    /**
+     * Parse selected text to detect field labels and their order
+     */
+    function parseSelectedText(text) {
+        const detectedFields = [];
+        const lines = text.split(/[\n\r]+/);
+
+        // Process line by line to maintain order
+        lines.forEach((line, lineIndex) => {
+            const cleanLine = line.trim().toLowerCase();
+            if (!cleanLine) return;
+
+            // Check each pattern against this line
+            for (const [fieldType, pattern] of Object.entries(FIELD_DETECTION_PATTERNS)) {
+                if (pattern.test(cleanLine)) {
+                    // Avoid duplicates
+                    if (!detectedFields.find(f => f.fieldType === fieldType)) {
+                        detectedFields.push({
+                            fieldType,
+                            label: FIELD_LABELS[fieldType] || fieldType,
+                            lineIndex,
+                            originalText: line.trim()
+                        });
+                    }
+                    break; // Only match one field per line
+                }
+            }
+        });
+
+        // Sort by line order
+        detectedFields.sort((a, b) => a.lineIndex - b.lineIndex);
+
+        return detectedFields;
+    }
+
+    /**
+     * Build custom queue from detected fields
+     */
+    function buildCustomQueue(detectedFields) {
+        fillQueue = [];
+
+        if (!autofillData) return;
+
+        detectedFields.forEach(field => {
+            let value = autofillData[field.fieldType];
+
+            // Handle special cases
+            if (field.fieldType === 'phone') {
+                const countryCode = autofillData.countryCode || '+91';
+                const phoneNational = autofillData.phoneNational || '';
+                value = phoneNational ? countryCode + phoneNational : '';
+            }
+
+            if (field.fieldType === 'fullName') {
+                const parts = [autofillData.firstName, autofillData.middleName, autofillData.lastName].filter(Boolean);
+                value = parts.join(' ');
+            }
+
+            if (value && String(value).trim()) {
+                fillQueue.push({
+                    fieldType: field.fieldType,
+                    label: field.label,
+                    value: String(value).trim()
+                });
+            }
+        });
+
+        currentQueueIndex = 0;
+        saveQueueIndex();
+
+        console.log("[SFP v5] Custom queue built:", fillQueue.map(q => q.label));
+    }
+
+    /**
+     * Create selection mode overlay
+     */
+    function createSelectionModeUI() {
+        if (selectionModeElement) return selectionModeElement;
+
+        const el = document.createElement('div');
+        el.className = 'sfp-selection-mode';
+        el.innerHTML = `
+            <span>📋 Select form field labels on the page, then release mouse</span>
+            <button class="cancel-btn">Cancel</button>
+        `;
+
+        el.querySelector('.cancel-btn').addEventListener('click', exitSelectionMode);
+
+        document.documentElement.appendChild(el);
+        selectionModeElement = el;
+        return el;
+    }
+
+    /**
+     * Create detected fields panel
+     */
+    function createDetectedPanel() {
+        if (detectedPanel) return detectedPanel;
+
+        const el = document.createElement('div');
+        el.className = 'sfp-detected-panel';
+        document.documentElement.appendChild(el);
+        detectedPanel = el;
+        return el;
+    }
+
+    /**
+     * Show detected fields and confirm
+     */
+    function showDetectedFields(fields) {
+        const panel = createDetectedPanel();
+
+        if (fields.length === 0) {
+            panel.innerHTML = `
+                <h4>❌ No Fields Detected</h4>
+                <p style="font-size: 12px; color: #666;">Try selecting text that includes field labels like "First Name", "Email", etc.</p>
+                <div class="actions">
+                    <button class="action-btn secondary" id="sfp-retry-scan">Try Again</button>
+                </div>
+            `;
+        } else {
+            const fieldTags = fields.map(f =>
+                `<span class="field-tag">${f.label}</span>`
+            ).join('');
+
+            panel.innerHTML = `
+                <h4>✅ Detected ${fields.length} Fields</h4>
+                <div class="field-list">${fieldTags}</div>
+                <div class="actions">
+                    <button class="action-btn secondary" id="sfp-cancel-scan">Cancel</button>
+                    <button class="action-btn primary" id="sfp-apply-scan">Apply Order</button>
+                </div>
+            `;
+        }
+
+        panel.classList.add('visible');
+
+        // Add event listeners
+        const retryBtn = panel.querySelector('#sfp-retry-scan');
+        const cancelBtn = panel.querySelector('#sfp-cancel-scan');
+        const applyBtn = panel.querySelector('#sfp-apply-scan');
+
+        if (retryBtn) {
+            retryBtn.addEventListener('click', () => {
+                panel.classList.remove('visible');
+                enterSelectionMode();
+            });
+        }
+
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', () => {
+                panel.classList.remove('visible');
+            });
+        }
+
+        if (applyBtn) {
+            applyBtn.addEventListener('click', () => {
+                buildCustomQueue(fields);
+                panel.classList.remove('visible');
+                updateFloatingButton();
+                copyNextToClipboard();
+                showNotification(`✅ Custom order set! ${fields.length} fields ready.`, 'success');
+            });
+        }
+    }
+
+    /**
+     * Enter selection mode
+     */
+    function enterSelectionMode() {
+        isSelectionMode = true;
+        const el = createSelectionModeUI();
+        el.classList.add('visible');
+
+        const scanBtn = document.getElementById('sfp-scan-btn');
+        if (scanBtn) scanBtn.classList.add('active');
+
+        // Listen for text selection
+        document.addEventListener('mouseup', handleSelectionComplete, true);
+    }
+
+    /**
+     * Exit selection mode
+     */
+    function exitSelectionMode() {
+        isSelectionMode = false;
+
+        if (selectionModeElement) {
+            selectionModeElement.classList.remove('visible');
+        }
+
+        const scanBtn = document.getElementById('sfp-scan-btn');
+        if (scanBtn) scanBtn.classList.remove('active');
+
+        document.removeEventListener('mouseup', handleSelectionComplete, true);
+    }
+
+    /**
+     * Handle text selection complete
+     */
+    function handleSelectionComplete(event) {
+        if (!isSelectionMode) return;
+
+        // Ignore clicks on our UI
+        if (event.target.closest('.sfp-selection-mode') ||
+            event.target.closest('.sfp-detected-panel') ||
+            event.target.closest('#sfp-scan-btn')) {
+            return;
+        }
+
+        const selection = window.getSelection();
+        const selectedText = selection.toString().trim();
+
+        if (selectedText.length > 10) { // Minimum text length
+            exitSelectionMode();
+
+            // Parse the selected text
+            const detectedFields = parseSelectedText(selectedText);
+            console.log("[SFP v5] Detected fields:", detectedFields);
+
+            // Show confirmation panel
+            showDetectedFields(detectedFields);
+        }
+    }
+
+    /**
+     * Inject Scan Form button
+     */
+    function injectScanButton() {
+        if (document.getElementById('sfp-scan-btn')) return;
+        if (!hasFormElements()) return;
+
+        const button = document.createElement('button');
+        button.id = 'sfp-scan-btn';
+        button.innerHTML = '🔍 Scan Form';
+        button.title = 'Click to scan form field order from selected text';
+
+        button.addEventListener('click', () => {
+            if (isSelectionMode) {
+                exitSelectionMode();
+            } else {
+                enterSelectionMode();
+            }
+        });
+
+        document.body.appendChild(button);
+    }
+
     // ====== Initialize ======
     async function init() {
         await loadAutofillData();
 
         if (hasFormElements()) {
             injectFloatingButton();
+            injectScanButton();
 
             // Copy first value to clipboard on page load
             if (fillQueue.length > 0 && currentQueueIndex < fillQueue.length) {

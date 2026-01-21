@@ -16,9 +16,28 @@
 |---------|-------------|
 | **Sequential Fill** | Fields are filled in a predefined order |
 | **Clipboard Auto-Advance** | After each fill, the next value is copied to clipboard |
+| **🆕 Scan Form** | Detect field order from any form by selecting text |
+| **Import/Export** | Export data as JSON, import from JSON |
 | **Visual Feedback** | Fields highlight when filled |
 | **Queue Preview** | Hover over the floating button to see the fill queue |
-| **Persistent State** | Queue position is saved across page reloads |
+
+## 🔍 Scan Form (Custom Order)
+
+For forms that don't match the default fill order:
+
+1. Click the **"🔍 Scan Form"** button
+2. **Select text** containing the form's field labels (drag to highlight)
+3. Extension **detects** field names like "First Name", "Email", etc.
+4. Click **"Apply Order"** to set custom fill sequence
+5. Now double-click fills in YOUR form's order!
+
+**Example text to select:**
+```
+First Name . Required
+Last Name . Required  
+Personal Email Address . Required
+Cellular Number . Required
+```
 
 ## 🔧 Installation
 
@@ -28,50 +47,30 @@
 4. Select the `v5` folder
 5. The extension icon will appear in your toolbar
 
-## 📋 Fill Order
+## 📋 Default Fill Order
 
-The extension fills fields in this order:
 1. First Name → Middle Name → Last Name
 2. Email → Phone
 3. Date of Birth → Age → Gender → Nationality
-4. House No → Building → Area → Landmark → City → State → Pincode
-5. Qualification → Organization → Passing Year
-6. LinkedIn → Portfolio → GitHub
+4. Address fields (House No, Building, Area, City, State, Pincode)
+5. Education (Qualification, Organization, Starting Year, Passing Year)
+6. Links (LinkedIn, Portfolio, GitHub)
 
-## ⌨️ Keyboard Shortcuts
+## ⌨️ Shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| `Double-click` | Fill current field & advance |
-| `Ctrl+Shift+R` | Reset queue to start |
+| Action | Method |
+|--------|--------|
+| Fill field | `Double-click` on any form field |
+| Reset queue | `Ctrl+Shift+R` or click floating button |
+| Scan form | Click "🔍 Scan Form" button |
 
-## 🔄 Resetting the Queue
+## 📦 Import/Export
 
-- Click the floating button when all fields are filled
-- Or use `Ctrl+Shift+R` on any page
-- Or click "Reset Queue" in the popup
-
-## 📁 Files
-
-- `manifest.json` - Extension configuration
-- `content.js` - Core sequential fill logic
-- `content.css` - UI styles for button, notifications
-- `popup.html` - Settings popup UI
-- `popup.js` - Popup data management
-- `states.json` - Indian states for autocomplete
-
-## 🐛 Troubleshooting
-
-**Fields not filling?**
-- Make sure you've saved data in the popup first
-- Check that the field is not disabled or readonly
-- Try refreshing the page
-
-**Clipboard not working?**
-- Some browsers require clipboard permission
-- Try clicking once on the page first
+- **Export**: Downloads your data as a JSON file
+- **Import**: Paste JSON data to restore settings
 
 ---
 
-**Version:** 5.0.0  
+**Version:** 5.1.0  
 **Compatibility:** Chrome/Edge (Manifest V3)
+

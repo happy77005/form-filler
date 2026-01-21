@@ -215,3 +215,165 @@
     font-weight: 600;
     margin-top: 4px;
 }
+
+/* Scan Form Button */
+#sfp-scan-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 160px;
+    z-index: 2147483647;
+    padding: 10px 16px;
+    border: 2px solid #667eea;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    color: #667eea;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: system-ui, -apple-system, sans-serif;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#sfp-scan-btn:hover {
+    background: #667eea;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+#sfp-scan-btn.active {
+    background: #f59e0b;
+    border-color: #f59e0b;
+    color: #fff;
+    animation: sfp-pulse-scan 1.5s infinite;
+}
+
+@keyframes sfp-pulse-scan {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);
+    }
+}
+
+/* Selection Mode Overlay */
+.sfp-selection-mode {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2147483640;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.95) 0%, rgba(239, 68, 68, 0.95) 100%);
+    color: #fff;
+    padding: 12px 20px;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    text-align: center;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.sfp-selection-mode.visible {
+    display: flex;
+}
+
+.sfp-selection-mode .cancel-btn {
+    padding: 6px 14px;
+    border: 2px solid #fff;
+    border-radius: 6px;
+    background: transparent;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sfp-selection-mode .cancel-btn:hover {
+    background: #fff;
+    color: #f59e0b;
+}
+
+/* Detected Fields Panel */
+.sfp-detected-panel {
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    z-index: 2147483645;
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    font-family: system-ui, -apple-system, sans-serif;
+    max-width: 320px;
+    max-height: 300px;
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.sfp-detected-panel.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.sfp-detected-panel h4 {
+    margin: 0 0 10px 0;
+    font-size: 12px;
+    color: #11998e;
+    font-weight: 600;
+}
+
+.sfp-detected-panel .field-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.sfp-detected-panel .field-tag {
+    padding: 4px 10px;
+    background: #e0f7fa;
+    color: #00796b;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.sfp-detected-panel .actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 8px;
+}
+
+.sfp-detected-panel .action-btn {
+    flex: 1;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sfp-detected-panel .action-btn.primary {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    color: #fff;
+}
+
+.sfp-detected-panel .action-btn.secondary {
+    background: #f1f5f9;
+    color: #64748b;
+}
