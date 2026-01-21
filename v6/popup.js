@@ -19,6 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle clear button
     document.getElementById('clearBtn').addEventListener('click', clearSettings);
 
+    // Import/Export handlers
+    document.getElementById('exportBtn').addEventListener('click', exportData);
+    document.getElementById('importBtn').addEventListener('click', showImportUI);
+    document.getElementById('cancelImport').addEventListener('click', hideImportUI);
+    document.getElementById('confirmImport').addEventListener('click', applyImportedData);
+
     // Auto-persist on input change
     setupAutoPersist();
 
@@ -206,8 +212,6 @@ function loadSettings() {
             document.getElementById('portfolioUrl').value = data.portfolioUrl || '';
             document.getElementById('githubUrl').value = data.githubUrl || '';
         }
-
-        updateQueueCount();
     });
 }
 
