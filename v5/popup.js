@@ -29,12 +29,41 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('cancelImport').addEventListener('click', hideImportUI);
     document.getElementById('confirmImport').addEventListener('click', applyImportedData);
 
+    // Scan Form button handler
+    document.getElementById('scanFormBtn').addEventListener('click', startScanMode);
+
     // Auto-persist on input change
     setupAutoPersist();
 
     // Set default country code
     setDefaultCountryCode();
 });
+
+// Start scan mode - sends message to content script
+async function startScanMode() {
+    try {
+        const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+        if (!tab) {
+            showStatus('No active tab found!', 'error');
+            return;
+        }
+
+        // Send message to content script to enter selection mode
+        chrome.tabs.sendMessage(tab.id, { action: 'enterSelectionMode' }, (response) => {
+            if (chrome.runtime.lastError) {
+                showStatus('Refresh the page and try again', 'error');
+                return;
+            }
+
+            // Close popup so user can select text on the page
+            showStatus('✓ Selection mode active! Select form labels on page.', 'success');
+            setTimeout(() => window.close(), 1000);
+        });
+    } catch (error) {
+        showStatus('Error starting scan mode', 'error');
+        console.error(error);
+    }
+}
 
 // Set default +91 country code
 function setDefaultCountryCode() {

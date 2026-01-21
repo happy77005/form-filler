@@ -613,6 +613,12 @@
             fillAllFields().then(sendResponse);
             return true;
         }
+
+        if (message.action === 'enterSelectionMode') {
+            enterSelectionMode();
+            sendResponse({ success: true });
+            return false;
+        }
     });
 
     // ====== Fill All Fields at Once (Optional) ======
